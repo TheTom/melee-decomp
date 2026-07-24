@@ -1498,10 +1498,32 @@ static inline TyFiguponED4* tyFigupon_InitScene(struct un_804D6EF4_t** ef4_2)
     return ed4;
 }
 
+static inline void tyFigupon_SetupPercentDisplay(struct un_804D6EF4_t* ef4)
+{
+    s32 sc = ef4->x5E;
+    struct un_804D6EF4_t* ef4_3 = _tyFigupon_804D6EF4;
+    f32 pct;
+    f32 fval;
+
+    fval = (f32) (ef4_3->x54 + _tyFigupon_80314B54());
+    if (sc != 0) {
+        sc -= 1;
+    }
+    if (ef4_3->x54 == 0) {
+        pct = 0.0f;
+    } else {
+        pct = ((f32) ef4_3->x54 / fval) + ((f32) (sc * 5) / 100.0f);
+    }
+    if (pct >= 1.0f) {
+        pct = 999.0f;
+    } else {
+        pct *= 1000.0f;
+    }
+    _tyFigupon_803153EC((u32) (s32) pct, 9, 3, 2, 0);
+}
+
 void tyFigupon_OnEnter_80317D80(void* arg0)
 {
-    s16 x54;
-    s32 x5E;
     TyFiguponData* data;
     struct un_804D6EF4_t* ef4;
     TyFiguponED4* ed4;
@@ -1509,8 +1531,6 @@ void tyFigupon_OnEnter_80317D80(void* arg0)
     HSD_Joint* joint;
     HSD_JObj* jobj;
     void* ud;
-    f32 total;
-    f32 pct;
     char* archive_name;
     void* sp20;
     u8 kind;
@@ -1585,27 +1605,7 @@ void tyFigupon_OnEnter_80317D80(void* arg0)
     }
     _tyFigupon_803153EC((s8) ef4->x5E, 6, 2, 0, 0);
     tyFigupon_UpdateRemainingCount(ef4);
-    x5E = ef4->x5E;
-    {
-        struct un_804D6EF4_t* ef4_3 = _tyFigupon_804D6EF4;
-        s32 b54 = _tyFigupon_80314B54();
-        x54 = ef4_3->x54;
-        total = (f32) (x54 + b54);
-    }
-    if (x5E != 0) {
-        x5E -= 1;
-    }
-    if (x54 == 0) {
-        pct = 0.0f;
-    } else {
-        pct = ((f32) x54 / total) + ((f32) (x5E * 5) / 100.0f);
-    }
-    if (pct >= 1.0f) {
-        pct = 999.0f;
-    } else {
-        pct *= 1000.0f;
-    }
-    _tyFigupon_803153EC((s32) pct, 9, 3, 2, 0);
+    tyFigupon_SetupPercentDisplay(ef4);
     HSD_PadRenewStatus();
 }
 
