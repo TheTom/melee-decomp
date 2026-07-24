@@ -373,6 +373,53 @@ static inline s32 tyFigupon_GetTotalCount(void)
     return total;
 }
 
+/* Capture sc=x5E before reloading ef4 — shared by OnEnter and case 9. */
+static inline void tyFigupon_SetupPercentDisplay(struct un_804D6EF4_t* ef4)
+{
+    s32 sc = ef4->x5E;
+    struct un_804D6EF4_t* ef4_3 = _tyFigupon_804D6EF4;
+    f32 pct;
+    f32 fval;
+
+    fval = (f32) (ef4_3->x54 + _tyFigupon_80314B54());
+    if (sc != 0) {
+        sc -= 1;
+    }
+    if (ef4_3->x54 == 0) {
+        pct = 0.0f;
+    } else {
+        pct = ((f32) ef4_3->x54 / fval) + ((f32) (sc * 5) / 100.0f);
+    }
+    if (pct >= 1.0f) {
+        pct = 999.0f;
+    } else {
+        pct *= 1000.0f;
+    }
+    _tyFigupon_803153EC((u32) (s32) pct, 9, 3, 2, 0);
+}
+
+/* Case 9: set bet count to 1 and refresh jobj[8] anim frame.
+ * Declare ef4_2 before anim_frame so MWCC colors them r28/r27. */
+static inline void tyFigupon_SetupBetAnim(struct un_804D6EF4_t* ef4)
+{
+    struct un_804D6EF4_t* ef4_2;
+    s32 anim_frame;
+
+    anim_frame = 1;
+    ef4->x5E = 1;
+    _tyFigupon_803153EC(ef4->x5E, 6, 2, 0, 0);
+    ef4_2 = _tyFigupon_804D6EF4;
+    if (ef4_2->x5E == 0x14) {
+        anim_frame = 3;
+    }
+    if (ef4_2->x5E <= 1) {
+        anim_frame = 4;
+    }
+    HSD_JObjReqAnimAll(ef4_2->jobjs[8], (f32) anim_frame);
+    HSD_AObjSetRate(ef4_2->jobjs[8]->aobj, 1.0f);
+    HSD_JObjAnimAll(ef4_2->jobjs[8]);
+}
+
 void _tyFigupon_803155C8(void)
 {
     s32 new_var;
@@ -519,45 +566,13 @@ void _tyFigupon_803155C8(void)
         break;
     case 9:
         if ((gm_801623D8() / 10u) != 0) {
-            new_var = 1;
-            ef4->x5E = 1;
-            _tyFigupon_803153EC(ef4->x5E, 6, 2, 0, 0);
-            {
-                struct un_804D6EF4_t* ef4_2 = _tyFigupon_804D6EF4;
-                if (ef4_2->x5E == 0x14) {
-                    new_var = 3;
-                }
-                if (ef4_2->x5E <= 1) {
-                    new_var = 4;
-                }
-                HSD_JObjReqAnimAll(ef4_2->jobjs[8], (f32) new_var);
-                HSD_AObjSetRate(ef4_2->jobjs[8]->aobj, 1.0f);
-                HSD_JObjAnimAll(ef4_2->jobjs[8]);
-            }
+            tyFigupon_SetupBetAnim(ef4);
         }
-        {
-            struct un_804D6EF4_t* ef4_3 = _tyFigupon_804D6EF4;
-            sc = ef4->x5E;
-            fval = (f32) (ef4_3->x54 + _tyFigupon_80314B54());
-            if (sc != 0) {
-                sc -= 1;
-            }
-            if (ef4_3->x54 == 0) {
-                pct = 0.0f;
-            } else {
-                pct = ((f32) ef4_3->x54 / fval) + ((f32) (sc * 5) / 100.0f);
-            }
-            if (pct >= 1.0f) {
-                pct = 999.0f;
-            } else {
-                pct *= 1000.0f;
-            }
-            _tyFigupon_803153EC((u32) (s32) pct, 9, 3, 2, 0);
-            ef4->x58 = 0;
-            ef4->x56 = 0;
-            HSD_GObjProc_8038FE24(HSD_GObj_804D7838);
-            ef4->x5C = 0;
-        }
+        tyFigupon_SetupPercentDisplay(ef4);
+        ef4->x58 = 0;
+        ef4->x56 = 0;
+        HSD_GObjProc_8038FE24(HSD_GObj_804D7838);
+        ef4->x5C = 0;
         break;
     }
 }
@@ -1496,30 +1511,6 @@ static inline TyFiguponED4* tyFigupon_InitScene(struct un_804D6EF4_t** ef4_2)
         OSPanic(__FILE__, 1575, "");
     }
     return ed4;
-}
-
-static inline void tyFigupon_SetupPercentDisplay(struct un_804D6EF4_t* ef4)
-{
-    s32 sc = ef4->x5E;
-    struct un_804D6EF4_t* ef4_3 = _tyFigupon_804D6EF4;
-    f32 pct;
-    f32 fval;
-
-    fval = (f32) (ef4_3->x54 + _tyFigupon_80314B54());
-    if (sc != 0) {
-        sc -= 1;
-    }
-    if (ef4_3->x54 == 0) {
-        pct = 0.0f;
-    } else {
-        pct = ((f32) ef4_3->x54 / fval) + ((f32) (sc * 5) / 100.0f);
-    }
-    if (pct >= 1.0f) {
-        pct = 999.0f;
-    } else {
-        pct *= 1000.0f;
-    }
-    _tyFigupon_803153EC((u32) (s32) pct, 9, 3, 2, 0);
 }
 
 void tyFigupon_OnEnter_80317D80(void* arg0)
