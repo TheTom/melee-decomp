@@ -91,7 +91,8 @@ struct un_803FA128_x130_t {
     f32 xEC;
 };
 
-/* 3FA128 */ static struct un_803FA128_t {
+/* Layout view from un_803FA128 base (x220 @ +0x220, x224 @ +0x224). */
+struct un_803FA128_t {
     u8 _pad0[0x130];
     struct un_803FA128_x130_t x130;
     u16 x220;
@@ -100,7 +101,13 @@ struct un_803FA128_x130_t {
     u8 x225;
     u8 x226;
     u8 x227;
-} un_803FA128;
+};
+/* Target places FA128 at .data+0x200; +0x225..+0x227 are an unnamed gap.
+ * Pad to +0x200, size 0x225 (through x224) so gap offsets sit outside the symbol
+ * (objdiff data_value matches the target field/gap symbolization). */
+static u8 un_803FA128_section_pad[0x200] = {1};
+static u8 un_803FA128[0x225] = {1};
+#define un_803FA128_as ((struct un_803FA128_t*) un_803FA128)
 /* 3FA258 */ struct un_803FA258_t {
     int x0;
     int x4[4];
@@ -465,7 +472,7 @@ void un_802FFEE0(s32* arg0)
 void un_802FFF2C(StartMeleeData* arg0)
 {
     StartMeleeRules* r = &arg0->rules;
-    struct un_803FA128_t* s = &un_803FA128;
+    struct un_803FA128_t* s = un_803FA128_as;
     struct un_803FA128_x130_t* sp;
     StartMeleeData* data;
     s32 i;
@@ -599,12 +606,12 @@ s32 un_80300338(void)
     u8* src;
 
     src = gmMainLib_8045A6C0;
-    src = src + un_803FA128.x220;
+    src = src + un_803FA128_as->x220;
 
-    un_803FA128.x224 = src[0x1868];
-    un_803FA128.x225 = src[0x1869];
-    un_803FA128.x226 = src[0x186A];
-    un_803FA128.x227 = src[0x186B];
+    un_803FA128_as->x224 = src[0x1868];
+    ((u8*) un_803FA128)[0x225] = src[0x1869];
+    ((u8*) un_803FA128)[0x226] = src[0x186A];
+    ((u8*) un_803FA128)[0x227] = src[0x186B];
     return 0;
 }
 
@@ -612,15 +619,15 @@ s32 un_80300378(void)
 {
     u8* ptr;
 
-    un_803FA128.x220 &= 0xFFFE;
+    un_803FA128_as->x220 &= 0xFFFE;
 
     ptr = gmMainLib_8045A6C0;
-    ptr = ptr + un_803FA128.x220;
+    ptr = ptr + un_803FA128_as->x220;
 
-    un_803FA128.x224 = ptr[0x1868];
-    un_803FA128.x225 = ptr[0x1869];
-    un_803FA128.x226 = ptr[0x186A];
-    un_803FA128.x227 = ptr[0x186B];
+    un_803FA128_as->x224 = ptr[0x1868];
+    ((u8*) un_803FA128)[0x225] = ptr[0x1869];
+    ((u8*) un_803FA128)[0x226] = ptr[0x186A];
+    ((u8*) un_803FA128)[0x227] = ptr[0x186B];
 
     return 0;
 }
@@ -629,30 +636,33 @@ s32 un_803003C4(void)
 {
     u8* ptr;
 
-    un_803FA128.x220 &= 0xFFFC;
+    un_803FA128_as->x220 &= 0xFFFC;
 
     ptr = gmMainLib_8045A6C0;
-    ptr = ptr + un_803FA128.x220;
+    ptr = ptr + un_803FA128_as->x220;
 
-    un_803FA128.x224 = ptr[0x1868];
-    un_803FA128.x225 = ptr[0x1869];
-    un_803FA128.x226 = ptr[0x186A];
-    un_803FA128.x227 = ptr[0x186B];
+    un_803FA128_as->x224 = ptr[0x1868];
+    ((u8*) un_803FA128)[0x225] = ptr[0x1869];
+    ((u8*) un_803FA128)[0x226] = ptr[0x186A];
+    ((u8*) un_803FA128)[0x227] = ptr[0x186B];
 
     return 0;
 }
 
 s32 un_80300410(s32 arg0)
 {
+    struct un_803FA128_t* s = un_803FA128_as;
     if (arg0 == 1) {
+        u8* base;
         u8* dst;
         lbAudioAx_80024030(1);
+        base = (u8*) s;
         dst = gmMainLib_8045A6C0;
-        dst += un_803FA128.x220;
-        dst[0x1868] = un_803FA128.x224;
-        dst[0x1869] = un_803FA128.x225;
-        dst[0x186A] = un_803FA128.x226;
-        dst[0x186B] = un_803FA128.x227;
+        dst += s->x220;
+        dst[0x1868] = s->x224;
+        dst[0x1869] = base[0x225];
+        dst[0x186A] = base[0x226];
+        dst[0x186B] = base[0x227];
     }
     return 0;
 }
