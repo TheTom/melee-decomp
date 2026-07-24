@@ -807,7 +807,7 @@ void grGreens_8021483C(Ground_GObj* gobj)
     for (i = 0; i < 30; i++) {
         HSD_JObj* jobj = Ground_801C3FA4(gobj, grGr_803E7840[i]);
 
-        HSD_ASSERT(1014, jobj);
+        (jobj) ? (void) 0 : __assert(grGr_803E7728, 1014, "jobj");
         lb_8000B1CC(jobj, NULL, &vec);
         if (vec.x < 0.0f) {
             if (left_max < vec.x) {
@@ -918,7 +918,7 @@ void grGreens_80214FA8(Ground_GObj* gobj)
         if (jobj != NULL) {
             HSD_JObjSetFlags(jobj, JOBJ_HIDDEN);
         } else {
-            HSD_ASSERT(1203, 0);
+            __assert(grGr_803E7728, 1203, "0");
         }
     }
     for (j = 0; j < 5; j++) {
@@ -1003,7 +1003,10 @@ void grGreens_80215358(Ground_GObj* gobj, int col, int row, int arg3, int arg4)
 {
     Ground* gp = GET_GROUND(gobj);
     struct grGreens_BlockVars* block = getBlock(gp, row, col);
-    unsigned char arr[30];
+    Vec vec;
+    float grMaterial_801C8DE0_paramA;
+    float grMaterial_801C8DE0_paramB;
+    float f;
     int m;
     int n;
     Ground_GObj* block_gobj;
@@ -1011,19 +1014,20 @@ void grGreens_80215358(Ground_GObj* gobj, int col, int row, int arg3, int arg4)
     HSD_JObj* jobj;
     int type;
     int num;
-    float grMaterial_801C8DE0_paramA;
-    float grMaterial_801C8DE0_paramB;
-    Vec vec;
-    float f;
-    PAD_STACK(0x10);
-    HSD_ASSERT(1305, block->status==Gr_Greens_Block_Status_None);
+    unsigned char arr[30];
+    (block->status == Gr_Greens_Block_Status_None)
+        ? (void) 0
+        : __assert(grGr_803E7728, 1305,
+                   "block->status==Gr_Greens_Block_Status_None");
     for (n = 0; n < 30; n++) {
         arr[n] = 0;
     }
     for (n = 0; n < 5; n++) {
         for (m = 0; m < 6; m++) {
-            if (getBlock(gp, n, m)->status != Gr_Greens_Block_Status_None) {
-                arr[getBlock(gp, n, m)->index] = 1;
+            if (gp->u.greens.x8_blocks[n][m].status !=
+                Gr_Greens_Block_Status_None)
+            {
+                arr[gp->u.greens.x8_blocks[n][m].index] = 1;
             }
         }
     }
@@ -1032,16 +1036,18 @@ void grGreens_80215358(Ground_GObj* gobj, int col, int row, int arg3, int arg4)
             break;
         }
     }
-    HSD_ASSERT(1316, num<Gr_Greens_Block_Max);
+    (num < Gr_Greens_Block_Max)
+        ? (void) 0
+        : __assert(grGr_803E7728, 1316, "num<Gr_Greens_Block_Max");
     if (arg3 == 1) {
         type = 1;
     } else if (arg3 == 2) {
         type = 3;
     } else {
-        HSD_ASSERT(1324, 0);
+        __assert(grGr_803E7728, 1324, "0");
     }
     block_gobj = grGreens_80213524(type);
-    HSD_ASSERT(1325, block_gobj);
+    (block_gobj) ? (void) 0 : __assert(grGr_803E7728, 1325, "block_gobj");
     jobj = Ground_801C3FA4(gobj, grGr_803E7840[num]);
     HSD_JObjClearFlags(jobj, JOBJ_HIDDEN);
     item_gobj = grMaterial_801C8CFC(8, 0, gp, jobj, fn_802159B4, fn_80215B84,
@@ -1068,7 +1074,7 @@ void grGreens_80215358(Ground_GObj* gobj, int col, int row, int arg3, int arg4)
     block->x1C = 0;
     block->x1_4 = 0;
     block->x1_7 = 0;
-    vec.x = getVec(gp, row, col)->x;
+    vec.x = (gp->u.greens.x4 + row * 6 + col)->x;
     vec.y = block->x8;
     vec.z = 0.0f;
     if (arg4 == 3) {
@@ -1162,7 +1168,7 @@ void fn_80215B84(Item_GObj* item_gobj, Ground* gp, Vec* arg2, HSD_GObj* gobj,
     PAD_STACK(8);
 
     if (!find_block(ground, item_gobj, &row, &col)) {
-        HSD_ASSERT(1465, 0);
+        __assert(grGr_803E7728, 1465, "0");
     }
     grGreens_802159B8(ground, col, row, (s32) hit);
 }
@@ -1409,7 +1415,9 @@ void grGreens_802166C4(Ground_GObj* gobj)
                         }
                     }
                 }
-                HSD_ASSERT(1693, ix<Gr_Greens_Block_Colum*2);
+                (ix<Gr_Greens_Block_Colum*2)
+                    ? (void) 0
+                    : __assert(grGr_803E7728, 1693, "ix<Gr_Greens_Block_Colum*2");
             } else {
                 total = wp[0] + wp[1];
                 total += wp[2];
@@ -1427,7 +1435,9 @@ void grGreens_802166C4(Ground_GObj* gobj)
                         }
                     }
                 }
-                HSD_ASSERT(1702, ix<Gr_Greens_Block_Colum);
+                (ix<Gr_Greens_Block_Colum)
+                    ? (void) 0
+                    : __assert(grGr_803E7728, 1702, "ix<Gr_Greens_Block_Colum");
             }
         } else if (right_has_zero == 0) {
             int total;
@@ -1451,7 +1461,9 @@ void grGreens_802166C4(Ground_GObj* gobj)
                     }
                 }
             }
-            HSD_ASSERT(1711, ix<Gr_Greens_Block_Colum*2);
+            (ix<Gr_Greens_Block_Colum*2)
+                ? (void) 0
+                : __assert(grGr_803E7728, 1711, "ix<Gr_Greens_Block_Colum*2");
         }
 
         if (ix != -1) {

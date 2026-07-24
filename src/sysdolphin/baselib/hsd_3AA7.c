@@ -2307,6 +2307,7 @@ s32 fn_803AE7F8(struct CardState* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
     s32 retries;
     u8* data;
 
+    PAD_STACK(0x40);
     repair_result = 0;
     verify_failed = 0;
     if (arg3 == 0) {

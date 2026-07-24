@@ -1953,7 +1953,8 @@ bool gm_8018841C(void)
     return false;
 }
 
-static TrainingModeState lbl_80473700;
+// non-static so object emits named BSS symbol (matches target reloc)
+TrainingModeState lbl_80473700;
 
 int gm_80188454(int idx)
 {
@@ -2015,33 +2016,36 @@ int fn_801884F8(void)
 
 void fn_80188550(int arg0)
 {
-    TrainingModeState* state = &lbl_80473700;
-    int current = state->count;
+    /* Best-known form (99.95%): structure-base cursor + direct field loads.
+     * Remaining mismatch is often BSS named-symbol vs section+0x158 reloc only. */
+    int current = lbl_80473700.count;
     int j;
     int to_remove;
 
     if (arg0 != current) {
-        if (arg0 > state->count) {
-            PlayerInitData* player;
+        if (arg0 > lbl_80473700.count) {
+            struct {
+                u8 pad[0x74];
+                PlayerInitData player;
+            }* cursor;
             int i;
             int skip;
             int remaining;
 
-            skip = state->count;
-            player = state->players;
+            skip = lbl_80473700.count;
+            cursor = (void*) &lbl_80473700;
             remaining = arg0 - current;
-            i = 0;
             j = 0;
 
-            for (i = 0; i < 4; i++, player++) {
+            for (i = 0; i < 4; i++, cursor = (void*) ((u8*) cursor + 0x24)) {
                 if (i != 0) {
                     if (skip == 0) {
                         if (i != 0) {
-                            player->slot_type = 1;
+                            cursor->player.slot_type = 1;
                         } else {
-                            player->slot_type = j;
+                            cursor->player.slot_type = j;
                         }
-                        gm_8016EDDC(i, player);
+                        gm_8016EDDC(i, &cursor->player);
                         if (--remaining == 0) {
                             break;
                         }
@@ -2066,7 +2070,7 @@ void fn_80188550(int arg0)
                 }
             }
         }
-        state->count = arg0;
+        lbl_80473700.count = arg0;
     }
 }
 

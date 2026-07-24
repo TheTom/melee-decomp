@@ -2319,7 +2319,7 @@ void ftColl_8007A06C(Fighter_GObj* gobj, void* dmg_ptr, void* log, size_t idx,
     ftCommonData* ftd;
     HitCapsule stack_hit;
 
-    PAD_STACK(0xA8);
+    PAD_STACK(0xA0);
 
     if (idx == 0) {
         return;

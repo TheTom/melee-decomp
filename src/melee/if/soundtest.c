@@ -305,22 +305,29 @@ int un_802FF99C(int arg0)
     return 0;
 }
 
+#pragma global_optimizer off
 s32 un_802FF9DC(void)
 {
     struct SmStData {
         u8 pad0[0x18];
         s32* x18;
     }* d = (struct SmStData*) un_804D6DA8;
-    s32 i;
+    s32 i = 0;
 
-    un_804D6DB4 = 0;
-    for (i = 0; i < un_804D6DB0; i++) {
+    PAD_STACK(8);
+    un_804D6DB4 = i;
+    for (; i < un_804D6DB0; i++) {
         un_804D6DB4 += d->x18[i];
     }
-    un_803F9FA4.xF4 = (f32) un_804D6DB4;
-    un_803F9FA4.xF8 = (f32) (un_804D6DB4 + d->x18[un_804D6DB0]);
+    {
+        s32 sum = un_804D6DB4;
+        s32 n = un_804D6DB0;
+        un_803F9FA4.xF4 = (f32) sum;
+        un_803F9FA4.xF8 = (f32) (sum + d->x18[n]);
+    }
     return 0;
 }
+#pragma global_optimizer reset
 
 int un_802FFB58(int arg0)
 {

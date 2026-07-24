@@ -3104,12 +3104,16 @@ void fn_80181708(void)
     gm_80168F88();
 }
 
+/* 3D8CD8 */ static char lbl_803D8CD8[0xC] = "IfHrNoCn";
+/* 3D8CE4 */ static char lbl_803D8CE4[0x18] = "ScInfCnt_scene_models";
+/* 3D8CFC */ static char lbl_803D8CFC[0x9] = "IfHrReco";
+
 void gm_80181998(void)
 {
-    lbl_804D65C8 = lbArchive_80016DBC("IfHrNoCn", &lbl_804D65CC,
-                                      "ScInfCnt_scene_models", 0);
-    lbl_804D65C8 = lbArchive_80016DBC("IfHrReco", &lbl_804D65D0,
-                                      "ScInfCnt_scene_models", 0);
+    lbl_804D65C8 =
+        lbArchive_80016DBC(lbl_803D8CD8, &lbl_804D65CC, lbl_803D8CE4, 0);
+    lbl_804D65C8 =
+        lbArchive_80016DBC(lbl_803D8CFC, &lbl_804D65D0, lbl_803D8CE4, 0);
     fn_80181708();
     /// @todo Keep #lbl_80472ED8 before #lbl_80473594 in `.bss`.
     (void) &lbl_80472ED8;

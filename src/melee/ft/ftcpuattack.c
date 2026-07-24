@@ -1726,9 +1726,9 @@ bool ftCo_800B89CC(Fighter* fp)
 
 bool ftCo_800B8A9C(Fighter* fp)
 {
-    int sp34;
     u8 _[0x38];
     u32 sp38;
+    int sp34;
     Vec3 sp28;
     Vec3 sp1C;
     Fighter** target_pp;
@@ -1878,7 +1878,10 @@ bool ftCo_800B8A9C(Fighter* fp)
         } else if (ftCo_800A3200(target3)) {
             var_r0 = 0;
         } else {
-            if (ftCo_800A0FB0(&sp1C, &sp34, &sp38, &sp28, -1, -1, -1,
+            if (ftCo_800A0FB0((Vec3*) ((char*) &sp1C - 4),
+                              (int*) ((char*) &sp34 - 4),
+                              (u32*) ((char*) &sp38 - 4),
+                              (Vec3*) ((char*) &sp28 - 4), -1, -1, -1,
                               target3->cur_pos.x, 5.0 + target3->cur_pos.y,
                               target3->cur_pos.x, target3->cur_pos.y - 1000.0,
                               0.0f) != 0)

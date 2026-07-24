@@ -1851,9 +1851,9 @@ void Toy_80307470(s32 arg0)
     }
 
     label = &data->ptrs[arg0];
-    joint = HSD_ArchiveGetPublicAddress(tg->x50, *(label += 0x188 / 4));
-
-    if (joint != NULL) {
+    if ((joint = HSD_ArchiveGetPublicAddress(tg->x50, *(label += 0x188 / 4))) !=
+        NULL)
+    {
         tg->x0 = GObj_Create(9, 9, 0);
 
         loaded_jobj = HSD_JObjLoadJoint(joint);

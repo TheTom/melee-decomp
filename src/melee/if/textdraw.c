@@ -226,11 +226,10 @@ void DevText_Draw(DevText* text)
     }
     if ((text->flags & DEVTEXT_FLAG_HIDETEXT) == 0) {
         GXColor* color_ptr = &color;
-        int y = text->y;
-        int row;
+        int col, row, x, y;
+        y = text->y;
         for (row = 0; row < text->h; row++) {
-            int x = text->x;
-            int col;
+            x = text->x;
             for (col = 0; col < text->w; col++) {
                 int index = (col + text->w * row) * 2;
                 s8 chr = text->buf[index];

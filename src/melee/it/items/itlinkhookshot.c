@@ -1227,8 +1227,8 @@ s32 it_802A4BFC(ItemLink* link_0, Vec3* arg1, itLinkHookshotAttributes* attr,
 {
     s32 flag;
     ItemLink* link_1;
-    Vec3 vec;
     f64 len;
+    Vec3 vec;
     UNUSED u8 frame_pad[8];
     Vec3 pos0;
     UNUSED u8 pad0[8];

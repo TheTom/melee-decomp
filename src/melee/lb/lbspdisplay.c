@@ -1309,6 +1309,41 @@ static void* setImageFromPreloadedArchive(HSD_ImageDesc* image_desc,
     return image_ptr;
 }
 
+/* DOL layout at 0x803BA1C0: file string, assert msg, then HSD_Chan x2 at +0x28.
+ * fn_80013614 takes the file-string address as base and uses +0x28/+0x58. */
+static char lb_803BA1C0[] = "lbspdisplay.c";
+static char lb_803BA1D0[] = "!image_desc->image_ptr";
+static HSD_Chan lb_803BA1E8[2] = {
+    {
+        NULL,
+        GX_COLOR0,
+        0,
+        { 0, 0, 0, 0 },
+        { 0xFF, 0xFF, 0xFF, 0 },
+        0,
+        GX_SRC_REG,
+        GX_SRC_REG,
+        GX_LIGHT_NULL,
+        GX_DF_CLAMP,
+        GX_AF_NONE,
+        NULL,
+    },
+    {
+        NULL,
+        GX_ALPHA0,
+        0,
+        { 0, 0, 0, 0xFF },
+        { 0, 0, 0, 0xFF },
+        0,
+        GX_SRC_REG,
+        GX_SRC_REG,
+        GX_LIGHT_NULL,
+        GX_DF_CLAMP,
+        GX_AF_NONE,
+        NULL,
+    },
+};
+
 HSD_ImageDesc* lb_800121FC(HSD_ImageDesc* image_desc, int width, int height,
                            GXTexFmt format, s16 entry_num)
 {
@@ -1318,7 +1353,9 @@ HSD_ImageDesc* lb_800121FC(HSD_ImageDesc* image_desc, int width, int height,
     image_desc->minLOD = 0.0f;
     image_desc->maxLOD = 0.0f;
     image_desc->format = format;
-    HSD_ASSERT(41, !image_desc->image_ptr);
+    if (image_desc->image_ptr) {
+        __assert(lb_803BA1C0, 41, lb_803BA1D0);
+    }
     {
         size_t buffer_size = GXGetTexBufferSize(
             image_desc->width, image_desc->height, image_desc->format, 0, 0);
@@ -1697,16 +1734,17 @@ void lb_80012994(HSD_ImageDesc* img, u8 alpha, u8 blur_size, f32 x, f32 y,
 
     HSD_StateInvalidate(2);
 }
-static struct lb_803BA1C0_t {
+
+struct lb_803BA1C0_t {
     u8 pad_0[0x28];
     HSD_Chan chan0;
     HSD_Chan chan1;
-} lb_803BA1C0;
+};
 
 void fn_80013614(HSD_GObj* gobj)
 {
     struct CameraBlurData* data = gobj->user_data;
-    struct lb_803BA1C0_t* channels = &lb_803BA1C0;
+    struct lb_803BA1C0_t* channels = (struct lb_803BA1C0_t*) lb_803BA1C0;
     u8 pad8[8];
     Mtx view_mtx;
     Mtx view_mtx2;
