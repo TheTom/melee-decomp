@@ -1739,6 +1739,7 @@ bool ftCo_800B8A9C(Fighter* fp)
     float weapon_reach;
     int result;
     int var_r0;
+    PAD_STACK(4);
 
     if (!cpu->xF9_b2) {
         return false;
@@ -1826,7 +1827,9 @@ bool ftCo_800B8A9C(Fighter* fp)
         }
         goto done;
     }
-    if (fp->item_gobj != NULL && ftCo_800A59E4(GET_ITEM(fp->item_gobj))) {
+    if (fp->item_gobj != NULL &&
+        ftCo_800A59E4((Item*) fp->item_gobj->user_data))
+    {
         item = GET_ITEM(fp->item_gobj);
         if (!ftCo_800A59E4(item)) {
             weapon_reach = 0.0f;
