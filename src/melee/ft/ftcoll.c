@@ -594,24 +594,13 @@ bool ftColl_80076ED8(Fighter* fp0, HitCapsule* hit0, Fighter* fp1,
     if (inlineB1(hit0)) {
         if (dmg_log0_idx == 0 && !fp1->dmg.x189C_unk_num_frames) {
             if (checkTipLog(fp1, hit0) == HitCapsule_Disabled) {
-                float temp_dmg = 0.5f * dmg;
+                float temp_dmg = dmg;
+                temp_dmg *= 0.5f;
                 if (!((int) temp_dmg) && dmg) {
                     temp_dmg = 1;
                 }
 
-                {
-                    u32 i;
-                    Fighter* walk = fp0;
-                    for (i = 0; i < ARRAY_SIZE(fp0->x914); i++) {
-                        HitCapsule* cur = &walk->x914[0];
-                        if (cur->state != HitCapsule_Disabled &&
-                            cur->x4 == hit0->x4)
-                        {
-                            lbColl_80008820(cur, 0, fp1);
-                        }
-                        walk = (Fighter*) ((char*) walk + sizeof(HitCapsule));
-                    }
-                }
+                inlineB0(fp0, hit0, fp1, 0);
                 if (fp1->x1988 == 0 && fp1->x198C == 0 && !fp1->x221D_b6 &&
                     hit1->state == HitCapsule_Disabled)
                 {
@@ -654,17 +643,14 @@ bool ftColl_80076ED8(Fighter* fp0, HitCapsule* hit0, Fighter* fp1,
         }
 
         {
-            u32 i;
-            Fighter* walk;
+            size_t i;
             dmg_log1_idx = (i = 0);
-            walk = fp0;
             inner_ret = false;
             for (; i < ARRAY_SIZE(fp0->x914); i++) {
-                HitCapsule* cur = &walk->x914[0];
+                HitCapsule* cur = &fp0->x914[i];
                 if (cur->state != HitCapsule_Disabled && cur->x4 == hit0->x4) {
                     lbColl_80008688(cur, 0, fp1);
                 }
-                walk = (Fighter*) ((char*) walk + sizeof(HitCapsule));
             }
         }
 
@@ -675,8 +661,7 @@ bool ftColl_80076ED8(Fighter* fp0, HitCapsule* hit0, Fighter* fp1,
         if (fp1->x1988 == 0 && fp1->x198C == 0 && !fp1->x221D_b6 &&
             hit1->state == HitCapsule_Disabled)
         {
-            // Reuse int_dmg slot (r24) for env damage count
-            int_dmg = getEnvDmg(dmg);
+            int dmg_count = getEnvDmg(dmg);
             if (fp1->x221C_b4) {
                 fp1->dmg.x1834 = fp1->dmg.x1834 - dmg;
                 if (fp1->dmg.x1834 < 0) {
@@ -686,7 +671,7 @@ bool ftColl_80076ED8(Fighter* fp0, HitCapsule* hit0, Fighter* fp1,
             }
 
             { /// @todo inline
-                if (inlineB2(fp1, dmg, int_dmg)) {
+                if (inlineB2(fp1, dmg, dmg_count)) {
                     Fighter* fp = fp0;
                     if (fp0->x1064_thrownHitbox.owner != NULL) {
                         fp = fp0->x1064_thrownHitbox.owner->user_data;
@@ -2334,7 +2319,7 @@ void ftColl_8007A06C(Fighter_GObj* gobj, void* dmg_ptr, void* log, size_t idx,
     ftCommonData* ftd;
     HitCapsule stack_hit;
 
-    PAD_STACK(0xA0);
+    PAD_STACK(0xA8);
 
     if (idx == 0) {
         return;
