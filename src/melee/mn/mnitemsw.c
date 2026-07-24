@@ -48,7 +48,7 @@ struct MnItemSwAnimTable {
     /* 0x48 */ f32 items[32];
 };
 
-static struct MnItemSwAnimTable mnItemSw_AnimTable = {
+static struct MnItemSwAnimTable mnItemSw_803ED370 = {
     {
         0.0f,
         10.0f,
@@ -77,10 +77,22 @@ static struct MnItemSwAnimTable mnItemSw_AnimTable = {
     },
 };
 
-static u8 mnItemSw_ItemOrder[32] = {
-    0x05, 0x12, 0x0A, 0x1E, 0x0D, 0x18, 0x03, 0x0E, 0x17, 0x1B, 0x01,
-    0x09, 0x08, 0x07, 0x15, 0x04, 0x06, 0x02, 0x0F, 0x00, 0x11, 0x0B,
-    0x1F, 0x1A, 0x14, 0x19, 0x10, 0x16, 0x13, 0x1D, 0x0C, 0x00,
+struct MnItemSw_803ED438 {
+    /* 0x00 */ u8 item_order[32];
+    /* 0x20 */ char cant_get[0x18];
+    /* 0x38 */ char file[0x0C];
+    /* 0x44 */ char user_data_name[0x0C];
+};
+
+static struct MnItemSw_803ED438 mnItemSw_803ED438 = {
+    {
+        0x05, 0x12, 0x0A, 0x1E, 0x0D, 0x18, 0x03, 0x0E, 0x17, 0x1B, 0x01,
+        0x09, 0x08, 0x07, 0x15, 0x04, 0x06, 0x02, 0x0F, 0x00, 0x11, 0x0B,
+        0x1F, 0x1A, 0x14, 0x19, 0x10, 0x16, 0x13, 0x1D, 0x0C, 0x00,
+    },
+    "Can't get user_data.\n",
+    "mnitemsw.c",
+    "user_data",
 };
 
 static f32 mnItemSw_804D4BA0[2] = { 0.0f, 1.0f };
@@ -97,17 +109,17 @@ s32 mnItemSw_80233A98(s32 arg0)
     switch (arg0) {
     case 19:
         if (lbLang_IsSettingJP()) {
-            return (s32) mnItemSw_AnimTable.items[arg0];
+            return (s32) mnItemSw_803ED370.items[arg0];
         }
         return 0x27;
     case 17:
         if (lbLang_IsSettingJP()) {
-            return (s32) mnItemSw_AnimTable.items[arg0];
+            return (s32) mnItemSw_803ED370.items[arg0];
         }
         return 0x28;
     case 18:
     default:
-        return (s32) mnItemSw_AnimTable.items[arg0];
+        return (s32) mnItemSw_803ED370.items[arg0];
     }
 }
 #pragma dont_inline reset
@@ -328,7 +340,7 @@ HSD_JObj* mnItemSw_8023405C(MnItemSwData* data, u8 idx)
 
 static inline s32 mnItemSw_GetItemAnim(s32 i)
 {
-    return mnItemSw_80233A98((s32) mnItemSw_ItemOrder[i]);
+    return mnItemSw_80233A98((s32) mnItemSw_803ED438.item_order[i]);
 }
 
 static inline void mnItemSw_SetCursorPosition(MnItemSwData* data)
@@ -399,7 +411,7 @@ void mnItemSw_80234104(HSD_GObj* gobj)
         item_anim = mnItemSw_GetItemAnim(i);
         HSD_JObjReqAnimAll(item_jobj, (f32) item_anim);
         HSD_JObjAnimAll(item_jobj);
-        HSD_JObjReqAnimAll(item_jobj, mnItemSw_AnimTable.x30[0]);
+        HSD_JObjReqAnimAll(item_jobj, mnItemSw_803ED370.x30[0]);
         mn_8022F3D8(item_jobj, 1, TOBJ_MASK);
         HSD_JObjAnimAll(item_jobj);
     }
@@ -756,17 +768,14 @@ HSD_JObj* mnItemSw_80235020(u8 arg0, MnItemSwData* arg1)
     return jobj;
 }
 
-static inline HSD_JObj* mnItemSw_GetLeftColumn(MnItemSwData* data)
-{
-    return data->jobjs[4];
-}
-
-static inline void mnItemSw_SetInitialCursorPosition(MnItemSwData* user_data)
+static inline void mnItemSw_SetInitialCursorPosition(MnItemSwData* user_data,
+                                                     HSD_JObj* item_jobj)
 {
     u8 cursor;
     f32 y_spacing;
     HSD_JObj* cjobj;
 
+    (void) item_jobj;
     HSD_JObjSetFlagsAll(user_data->jobjs[4], JOBJ_HIDDEN);
     HSD_JObjSetFlagsAll(user_data->jobjs[6], JOBJ_HIDDEN);
 
@@ -798,6 +807,25 @@ static inline void mnItemSw_SetInitialCursorPosition(MnItemSwData* user_data)
     HSD_JObjSetFlagsAll(user_data->jobjs[2], JOBJ_HIDDEN);
 }
 
+
+static inline void mnItemSw_InitUserData(MnItemSwData* user_data, s32 arg0,
+                                         struct MnItemSwTable* tbl)
+{
+    u8* order;
+    s32 i;
+
+    user_data->menu_kind = mn_804A04F0.cur_menu;
+    user_data->cursor = (u8) mn_804A04F0.hovered_selection;
+
+    order = tbl->item_order;
+    for (i = 0; (u8) i < 0x1F; order++, i++) {
+        user_data->items[(u8) i] = gm_8016403C(*order);
+    }
+
+    user_data->x21 = gmMainLib_8015CC58()->item_freq + 1;
+    user_data->x23 = (u8) arg0;
+}
+
 HSD_GObj* mnItemSw_802351A0(s32 arg0)
 {
     HSD_JObj* jobj;
@@ -806,7 +834,6 @@ HSD_GObj* mnItemSw_802351A0(s32 arg0)
     struct StaticModelDesc* mdl = &MenMainConIs_Top;
     struct MnItemSwTable* tbl = mnItemSw_GetTable();
     f32 y_spacing;
-    u8* order;
     s32 i;
     HSD_GObj* gobj = GObj_Create(6, 7, 0x80);
 
@@ -823,20 +850,14 @@ HSD_GObj* mnItemSw_802351A0(s32 arg0)
     HSD_JObjAnimAll(jobj);
 
     user_data = HSD_MemAlloc(sizeof(MnItemSwData));
-    HSD_ASSERTREPORT(0x3D7, user_data, "Can't get user_data.\n");
+    if (user_data == NULL) {
+        OSReport(mnItemSw_803ED438.cant_get);
+        __assert(mnItemSw_803ED438.file, 0x3D7, mnItemSw_803ED438.user_data_name);
+    }
 
     GObj_InitUserData(gobj, 0, HSD_Free, user_data);
 
-    user_data->menu_kind = mn_804A04F0.cur_menu;
-    user_data->cursor = (u8) mn_804A04F0.hovered_selection;
-
-    order = tbl->item_order;
-    for (i = 0; (u8) i < 0x1F; order++, i++) {
-        user_data->items[(u8) i] = gm_8016403C(*order);
-    }
-
-    user_data->x21 = gmMainLib_8015CC58()->item_freq + 1;
-    user_data->x23 = (u8) arg0;
+    mnItemSw_InitUserData(user_data, arg0, tbl);
 
     for (i = 0; i < 7; i++) {
         lb_80011E24(jobj, &user_data->jobjs[i], i, -1);
@@ -851,7 +872,7 @@ HSD_GObj* mnItemSw_802351A0(s32 arg0)
     }
 
     y_spacing = HSD_JObjGetTranslationY(user_data->jobjs[5]) -
-                HSD_JObjGetTranslationY(mnItemSw_GetLeftColumn(user_data));
+                HSD_JObjGetTranslationY(user_data->jobjs[4]);
 
     for (i = 0; i < 0x1F; i++) {
         item_jobj = mnItemSw_80235020((u8) i, user_data);
@@ -864,19 +885,19 @@ HSD_GObj* mnItemSw_802351A0(s32 arg0)
         }
     }
 
-    mnItemSw_SetInitialCursorPosition(user_data);
+    mnItemSw_SetInitialCursorPosition(user_data, item_jobj);
 
     {
         u8 hov = (u8) mn_804A04F0.hovered_selection;
         u8 x21 = user_data->x21;
-        HSD_JObj* all_jobj = user_data->jobjs[3];
+        item_jobj = user_data->jobjs[3];
 
         if (hov == 0x1F || hov == 0x20) {
-            HSD_JObjReqAnimAll(all_jobj, tbl->x30[7 + x21 * 2]);
+            HSD_JObjReqAnimAll(item_jobj, tbl->x30[7 + x21 * 2]);
         } else {
-            HSD_JObjReqAnimAll(all_jobj, tbl->x30[6 + x21 * 2]);
+            HSD_JObjReqAnimAll(item_jobj, tbl->x30[6 + x21 * 2]);
         }
-        HSD_JObjAnimAll(all_jobj);
+        HSD_JObjAnimAll(item_jobj);
     }
 
     HSD_JObjSetFlagsAll(user_data->jobjs[3], JOBJ_HIDDEN);
