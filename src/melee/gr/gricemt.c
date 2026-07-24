@@ -1203,7 +1203,7 @@ s32 fn_801F8E58(Ground_GObj* arg0, s32* out)
     s32 list[12];
     s32 chosen;
 
-    timer_base = timer = arg0->user_data;
+    timer_base = (0, timer = arg0->user_data);
     p = &list[max = 0];
     for (i = 0; i < 12; i++) {
         if (timer->xDC == 0 && (Stage_80225194() != 0xD4 || i >= 4)) {
