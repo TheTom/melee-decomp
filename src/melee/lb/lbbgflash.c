@@ -296,6 +296,7 @@ void fn_8001FEC4(HSD_GObj* gobj, s32 code)
                     GXPosition2f32(0.0f, (f32) neg_yh);
                     GXColor4u8(0, 0, 0, 0xFF);
                 }
+                /* Keep strip_h live across both arms (required for match). */
                 (void) strip_h;
             }
         }

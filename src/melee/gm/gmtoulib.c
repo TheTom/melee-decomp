@@ -1401,7 +1401,9 @@ void fn_8018D50C(BracketEntry* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
             }
         }
     }
+    
 }
+
 
 static GXColor const col = { 0xFF, 0xFF, 0x00, 0xFF };
 

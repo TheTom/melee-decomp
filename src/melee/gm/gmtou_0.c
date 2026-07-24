@@ -145,7 +145,7 @@ void fn_80190ABC(int mode)
     TmData* tm;
     s32 cur_opt;
     s32 opt;
-    /// Shared across cases 5/6 so MWCC colors &state->x3 into r28.
+    /* Shared by cases 5/6 for matching base register coloring. */
     u8* start;
 
     tm = gm_GetTournamentData();
@@ -235,14 +235,14 @@ void fn_80190ABC(int mode)
         s32 idx;
         HSD_SisLib_803A7664(tm->x524[0]);
         HSD_SisLib_803A7664(tm->x524[1]);
-        /// Reuse table's r30 for &state->x2.
+        /* Reuse table local so &state->x2 colors correctly. */
         table = (u16*) &state->x2;
         start = &state->x3;
         idx = *(u8*) table + *start;
         fn_8018ECA8(tm->x37[idx].x9, tm->x37[idx].x0, 3, 514.0f, 87.0f, 4);
         idx = *(u8*) table + *start;
         fn_8018ECA8(tm->x37[idx].x9, tm->x37[idx].x0, 3, 514.0f, 87.0f, 4);
-        /// Keep state (r29) live so MWCC cannot fold start into lbzu on r29.
+        /* Keep state live through end of case (load-bearing for match). */
         switch (state->x4) {
         default:
             break;
