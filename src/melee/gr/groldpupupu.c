@@ -315,12 +315,27 @@ bool grOldPupupu_80210D08(Ground_GObj* gobj)
     return false;
 }
 
+/* jobj work nested so outer gp/base stay in r31/r29 */
+static inline void grOldPupupu_80210D10_place(HSD_GObj* spawn, char* base,
+                                               s32 index, f32 direction, f32 x,
+                                               f32 y, f32 z, s32 i)
+{
+    HSD_JObj* jobj = spawn->hsd_obj;
+    (void) jobj;
+    (jobj) ? (void) 0 : __assert(base + 0x118, 0x216, "jobj");
+    HSD_JObjSetTranslateX(jobj, direction * x);
+    HSD_JObjSetTranslateY(jobj, y);
+    HSD_JObjSetTranslateZ(jobj, z);
+    grAnime_801C7FF8(spawn, 0, 7, 0, 40.0F * (f32) i, 1.0F);
+    HSD_JObjClearFlagsAll(Ground_801C3FA4(spawn, grOp_803E67B0[index].x2),
+                         JOBJ_HIDDEN);
+}
+
 void grOldPupupu_80210D10(Ground_GObj* gobj)
 {
     f32 cam_left;
     f32 cam_right;
     f32 cam_center;
-    HSD_JObj* jobj;
     Ground* gp;
     f32 direction;
     f32 y;
@@ -333,9 +348,11 @@ void grOldPupupu_80210D10(Ground_GObj* gobj)
     s32 count;
     s32 i;
     s32 index;
+    char* base;
 
     PAD_STACK(0x10);
     gp = GET_GROUND(gobj);
+    base = (char*) grOp_StageCallbacks;
     timer = gp->u.oldpupupu2.xC4;
     gp->u.oldpupupu2.xC4 = timer - 1;
     if (timer < 0) {
@@ -370,19 +387,10 @@ void grOldPupupu_80210D10(Ground_GObj* gobj)
         }
         z = -150.0F * direction;
         for (i = 0; i < count; i++) {
-            HSD_GObj* spawn;
-            spawn = grOldPupupu_802108B4_noinline(2);
+            HSD_GObj* spawn = grOldPupupu_802108B4_noinline(2);
             if (spawn != NULL) {
-                jobj = spawn->hsd_obj;
-                (void) jobj;
-                HSD_ASSERT(0x216, jobj);
-                HSD_JObjSetTranslateX(jobj, direction * x);
-                HSD_JObjSetTranslateY(jobj, y);
-                HSD_JObjSetTranslateZ(jobj, z);
-                grAnime_801C7FF8(spawn, 0, 7, 0, 40.0F * (f32) i, 1.0F);
-                HSD_JObjClearFlagsAll(
-                    Ground_801C3FA4(spawn, grOp_803E67B0[index].x2),
-                    JOBJ_HIDDEN);
+                grOldPupupu_80210D10_place(spawn, base, index, direction, x, y,
+                                          z, i);
             }
             x += step;
         }
