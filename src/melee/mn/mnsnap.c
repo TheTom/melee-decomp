@@ -295,6 +295,12 @@ static inline s32* mnSnap_GetCurPage(mnSnap_State* snap)
 }
 
 /// Loads a page of snapshot thumbnails and updates navigation arrows.
+/// @todo .sdata order hack -- "jobj.h" after "jobj" (8025329C), before "%03d".
+void order_sdata(void)
+{
+    (void) "jobj.h";
+}
+
 void mnSnap_80253640(s32 page)
 {
     HSD_JObj* jobj;
@@ -604,6 +610,12 @@ void mnSnap_80253F60(void)
     }
 }
 
+/// @todo .sdata2 order hack -- -6.9F after 2.0F (80253F60), before -3.5F (8025409C).
+void order_sdata2(void)
+{
+    (void) -6.9F;
+}
+
 /// Resets the sub-menu view and shows all 5 option buttons.
 #pragma dont_inline on
 void mnSnap_80254014(void)
@@ -691,6 +703,16 @@ void mnSnap_8025409C(s32 dlg_type)
 
     mnSnap_804A0A10.left_btn = left;
     mnSnap_804A0A10.right_btn = right;
+}
+
+/// @todo .sdata2 order hack -- InitDialogText floats before 6.0F in fn_802545C4.
+void order_sdata2_dlg(void)
+{
+    (void) -2.9F;
+    (void) 23.0F;
+    (void) 440.0F;
+    (void) 10.0F;
+    (void) 0.03F;
 }
 
 static inline void mnSnap_RefreshSlotSelection(mnSnap_State* snap, s32* p50,
@@ -1635,8 +1657,9 @@ void fn_802545C4(void)
                 lbAudioAx_80024030(1);
                 {
                     s32 mi = mnSnap_804A0A10.move_idx;
-                    result = lbSnap_8001D7B0(mnSnap_804A0A10.active_slot,
-                                             mnSnap_804A0A10.cursor_idx, mi);
+                    s32 cidx = mnSnap_804A0A10.cursor_idx;
+                    s32 as = mnSnap_804A0A10.active_slot;
+                    result = lbSnap_8001D7B0(as, cidx, mi);
                 }
                 if (result != 8) {
                     do {
@@ -2528,24 +2551,25 @@ void mnSnap_80257F24(void)
     warn_matanim = &snap->warn_matanim;
     warn_shapeanim = &snap->warn_shapeanim;
 
+    /* First-use string order: ConSn -> SubSn -> SubCsrSn -> PhotoSn -> LoadSn -> WarCmn. */
     lbArchive_LoadSections(
         mn_804D6BB8, main_joint, "MenMainConSn_Top_joint", main_animjoint,
         "MenMainConSn_Top_animjoint", main_matanim,
         "MenMainConSn_Top_matanim_joint", main_shapeanim,
-        "MenMainConSn_Top_shapeanim_joint", csr_joint,
+        "MenMainConSn_Top_shapeanim_joint", (void**) &snap->page_joint,
+        "MenMainSubSn_Top_joint", (void**) &snap->sub_animjoint,
+        "MenMainSubSn_Top_animjoint", (void**) &snap->sub_matanim,
+        "MenMainSubSn_Top_matanim_joint", (void**) &snap->sub_shapeanim,
+        "MenMainSubSn_Top_shapeanim_joint", csr_joint,
         "MenMainSubCsrSn_Top_joint", csr_animjoint,
         "MenMainSubCsrSn_Top_animjoint", csr_matanim,
         "MenMainSubCsrSn_Top_matanim_joint", csr_shapeanim,
         "MenMainSubCsrSn_Top_shapeanim_joint", (void**) &snap->photo_joint,
-        "MenMainPhotoSn_Top_joint", (void**) &snap->sub_animjoint,
-        "MenMainSubSn_Top_animjoint", (void**) &snap->sub_matanim,
-        "MenMainSubSn_Top_matanim_joint", (void**) &snap->sub_shapeanim,
-        "MenMainSubSn_Top_shapeanim_joint", (void**) &snap->page_joint,
-        "MenMainSubSn_Top_joint", (void**) &snap->load_joint,
-        "MenMainLoadSn_Top_joint", arrows_joint, "MenMainSubSn_Top_joint",
-        arrows_animjoint, "MenMainSubSn_Top_animjoint", arrows_matanim,
-        "MenMainSubSn_Top_matanim_joint", arrows_shapeanim,
-        "MenMainSubSn_Top_shapeanim_joint", warn_joint,
+        "MenMainPhotoSn_Top_joint", (void**) &snap->load_joint,
+        "MenMainLoadSn_Top_joint", arrows_joint, "MenMainLoadSn_Top_joint",
+        arrows_animjoint, "MenMainLoadSn_Top_animjoint", arrows_matanim,
+        "MenMainLoadSn_Top_matanim_joint", arrows_shapeanim,
+        "MenMainLoadSn_Top_shapeanim_joint", warn_joint,
         "MenMainWarCmn_Top_joint", warn_animjoint,
         "MenMainWarCmn_Top_animjoint", warn_matanim,
         "MenMainWarCmn_Top_matanim_joint", warn_shapeanim,
