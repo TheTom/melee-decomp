@@ -283,7 +283,12 @@ void it_8026CB9C(s32* counts, u64 mask, f32 weight)
 
 void it_8026CD50(s32* counts, u64 mask, f32 weight)
 {
-    ItemPickTable* table = &it_804A0E50;
+    /// BSS layout places #it_804A0E50 immediately after #it_804A0E30; target
+    /// forms one @ha/@l of the spawner and uses +0x20 field offsets.
+    struct {
+        RandomItemSpawner spawner;
+        ItemPickTable table;
+    }* combined = (void*) &it_804A0E30;
     s32* p;
     s32 cnt;
     ItemKind it_kind;
@@ -308,9 +313,9 @@ void it_8026CD50(s32* counts, u64 mask, f32 weight)
         it_kind++;
         mask >>= 1;
     }
-    table->size = cnt;
-    *(item_kinds = &table->x4) = HSD_MemAlloc(cnt * 4);
-    *(weights = &table->xC) = HSD_MemAlloc(cnt * 4);
+    combined->table.size = cnt;
+    *(item_kinds = &combined->table.x4) = HSD_MemAlloc(cnt * 4);
+    *(weights = &combined->table.xC) = HSD_MemAlloc(cnt * 4);
 
     idx = (cnt2 = 0);
     mask = backup;
