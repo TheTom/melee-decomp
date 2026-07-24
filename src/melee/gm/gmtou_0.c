@@ -1769,7 +1769,6 @@ void fn_80193B58(s32* arg0, u32 arg1, u32 arg2)
     }
 }
 
-/// @todo Only differs by an r6/r7 swap in the second settings block.
 void fn_80193FCC(s32* arg0, u32 arg1, u32 arg2)
 {
     struct Lbl804799B8_t* state = &lbl_804799B8;
@@ -1854,11 +1853,15 @@ void fn_80193FCC(s32* arg0, u32 arg1, u32 arg2)
         }
     } else if (arg1 & 0x80002) {
         if (*mt != 0) {
+            s32 sh;
+            u8(*maxentry)[2];
             idx = arg0[0];
             ptr = arg0 + idx;
-            if (*++ptr < (s32) (entry = table->max)[idx][!!*mt] + 1) {
-                if (*ptr + 1 <= clamp_val && *ptr + 1 < arg0[2]) {
-                    *ptr = *ptr + 1;
+            sh = idx << 1;
+            val = *++ptr;
+            if (val < (s32) (maxentry = table->max)[idx][!!*mt] + 1) {
+                if (val + 1 <= clamp_val && val + 1 < arg0[2]) {
+                    *ptr = val + 1;
                     lbAudioAx_80024030(2);
                     state->x8 = 5;
                     goto after_right;
@@ -1874,11 +1877,12 @@ void fn_80193FCC(s32* arg0, u32 arg1, u32 arg2)
                 *ptr = (s32) table->min[idx][!!*mt];
                 idx = arg0[0];
                 val = arg0[idx + 1];
-                if (val != (s32) entry[idx][!!*mt] + 1) {
+                if (val != (s32) maxentry[idx][!!*mt] + 1) {
                     lbAudioAx_80024030(2);
                     state->x8 = 5;
                 }
             }
+            (void) sh;
         } else {
             lbAudioAx_80024030(2);
             state->x8 = 5;
